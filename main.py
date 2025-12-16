@@ -65,11 +65,22 @@ class DataHandler:
         self.db.delete_all_data()
 
     def show_available_tasks(self):
-        self.db.show_all_data()
+        print(self.db.load_all_data())
 
     def _get_current_date(self):
         pass
         
+    def convert_dict_to_list(self):
+        dict_data = self.db.load_all_data()
+
+        list_data = [
+            {"task": task_name, **another_values} 
+            for task_name, another_values in dict_data.items()
+        ]
+
+        return list_data
+
+
 class Database:
     def __init__(self):
         self.filename: str = "tasks.json"
@@ -95,10 +106,9 @@ class Database:
         with open(self.filename, 'w') as f:
             json.dump({}, f)
 
-    def show_all_data(self):
+    def load_all_data(self) -> dict:
         with open(self.filename, 'r') as f:
-            data = json.load(f)
-            print(data)
+            return json.load(f)
 
 def main():
 
