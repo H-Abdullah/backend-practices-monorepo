@@ -18,6 +18,39 @@ class VisualInterface:
         print(table)
         
         return
+    
+    def display_info_text(self) -> None:
+
+        BOLD = '\033[1m'
+        ITALIC = '\033[3m'
+        END = '\033[0m'
+
+        COMMANDS = [
+            ("quit", "Exit the program"),
+            ("add <task-name>", "Add a new task"),
+            ("delete <task-name>", "Delete an existing task"),
+            ("show", "Show all tasks"),
+            ("help", "Display this help message"),
+        ]
+
+        EXAMPLES = [
+            ("add go gym after work"),
+            ("delete do laundry at 7am"),
+        ]
+
+        print() # newline
+        print(f"{BOLD}Task Tracker CLI{END}")
+        print(f"{ITALIC} Manage your daily tasks from the terminal{END}")
+        print() # newline
+        print(f"{BOLD}Usage:{END}")
+        for key, msg in COMMANDS:
+            print(f"    {key:<30}{ITALIC}{msg}{END}")
+
+        print() # newline
+        print(f"{BOLD}Examples:{END}")
+        for example in EXAMPLES:
+            print(f"    {example}")
+        print() # newline
 
 class DataHandler:
     def __init__(self, db, vi):
@@ -26,7 +59,7 @@ class DataHandler:
     
     def process_user_input(self):
 
-        user_input = input()
+        user_input = input(">> ",)
 
         # warn user kalau tiada bagi input
         if len(user_input) <= 0:
@@ -137,6 +170,7 @@ def main():
     dh = DataHandler(db, vi)
 
     db.create_db()
+    vi.display_info_text()
 
     script_toggle = True
 
