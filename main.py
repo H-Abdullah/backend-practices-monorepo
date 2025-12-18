@@ -1,15 +1,28 @@
 #---------------- imports ----------------
 import json
 import datetime
+from tabulate import tabulate
 
 #---------------- main functions/classes ----------------
 class VisualInterface:
     # visual interface sepatutnya hanya deal dengan json
-    pass
+    def tabulate_data(self, data: list[dict]) -> None:
+
+        table = tabulate(
+            data,
+            headers="keys",
+            tablefmt="rounded_grid",
+            stralign="center",
+        )
+        
+        print(table)
+        
+        return
 
 class DataHandler:
-    def __init__(self, db):
+    def __init__(self, db, vi):
         self.db: Database = db
+        self.vi: VisualInterface = vi
     
     def process_user_input(self):
 
@@ -38,6 +51,7 @@ class DataHandler:
                     return
                 else:
                     self.add_task(args)
+                    self.show_available_tasks()
                     return
             case "delete":
                 self.delete_all_task()
@@ -54,9 +68,7 @@ class DataHandler:
 
         new_task = {
             task: {
-                "finished": False,
-                "createdAtDate": "",
-                "finishedAtDate": ""
+                "FINISHED": False,
             }
         }        
         self.db.update_data(new_task)
@@ -65,19 +77,27 @@ class DataHandler:
         self.db.delete_all_data()
 
     def show_available_tasks(self):
-        print(self.db.load_all_data())
+        data = self.convert_dict_to_list()
+        
+        self.vi.tabulate_data(data)
+
+        return
 
     def _get_current_date(self):
         pass
         
     def convert_dict_to_list(self):
+
         dict_data = self.db.load_all_data()
 
-        list_data = [
-            {"task": task_name, **another_values} 
+        if not dict_data:
+            list_data = [{"TASK": "No task added yet", "FINISHED": "-"}]
+        else:
+            list_data = [
+            {"TASK": task_name, **another_values} 
             for task_name, another_values in dict_data.items()
         ]
-
+            
         return list_data
 
 
@@ -112,9 +132,9 @@ class Database:
 
 def main():
 
-    # vi = VisualInterface()
+    vi = VisualInterface()
     db = Database()
-    dh = DataHandler(db)
+    dh = DataHandler(db, vi)
 
     db.create_db()
 
