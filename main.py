@@ -16,8 +16,6 @@ class VisualInterface:
         )
         
         print(table)
-        
-        return
     
     def display_info_text(self) -> None:
 
@@ -71,26 +69,41 @@ class DataHandler:
 
         return self.match_user_input(key, args)
 
-    def match_user_input(self, key, args):
+    def match_user_input(self, key: list, args: list):
 
         sanitized_key = key.strip().lower()
 
         match sanitized_key:
             case "quit":
                 return sanitized_key
+            
             case "add":
                 if len(args) <= 0:
                     print("Please type a task")
                     return
                 else:
                     self.add_task(args)
-                    self.show_available_tasks()
+                    self.visualize_all_tasks()
                     return
+                
             case "delete":
-                self.delete_all_task()
-                return
+                if not len(args):
+                    print("Please specify a task to delete")
+                    return
+                
+                isTaskExist = self.check_task_existence(args)
+
+                if isTaskExist:
+                    self.delete_task(args)
+                    self.visualize_all_tasks()
+                    return
+                else:
+                    print(f"'{args[0]}' task doesnt exist")
+                    print()
+                    self.visualize_all_tasks()
+                    return
             case "show":
-                self.show_available_tasks()
+                self.visualize_all_tasks()
                 return
 
         print("Please enter available command...")
@@ -98,7 +111,6 @@ class DataHandler:
     def add_task(self, value: list[str]) -> None:
 
         task = value[0]
-
         new_task = {
             task: {
                 "FINISHED": False,
@@ -106,21 +118,25 @@ class DataHandler:
         }        
         self.db.update_data(new_task)
     
-    def delete_all_task(self):
-        self.db.delete_all_data()
+    def delete_task(self, task: list):
+        self.db.delete_data(task)
 
-    def show_available_tasks(self):
-        data = self.convert_dict_to_list()
-        
-        self.vi.tabulate_data(data)
+    def visualize_all_tasks(self) -> None:
+        converted_data = self.convert_dict_to_list()
+        self.vi.tabulate_data(converted_data)
 
-        return
+    def check_task_existence(self, task):
+        data = self.db.load_all_data()
+
+        if task[0] in data:
+            return True
+        else:
+            return False
 
     def _get_current_date(self):
         pass
         
     def convert_dict_to_list(self):
-
         dict_data = self.db.load_all_data()
 
         if not dict_data:
@@ -147,21 +163,26 @@ class Database:
             return
 
     def update_data(self, new_task: dict) -> None:
-        with open(self.filename, 'r') as f:
-            current_data = json.load(f)
+        current_data = self.load_all_data()
 
         current_data.update(new_task)
 
-        with open(self.filename, 'w') as f:
-            json.dump(current_data, f, indent=2)
+        self.save_all_data(current_data)
 
-    def delete_all_data(self): 
-        with open(self.filename, 'w') as f:
-            json.dump({}, f)
+    def delete_data(self, task: list) -> None:
+        current_data = self.load_all_data()
+
+        current_data.pop(task[0])
+
+        self.save_all_data(current_data)
 
     def load_all_data(self) -> dict:
         with open(self.filename, 'r') as f:
             return json.load(f)
+        
+    def save_all_data(self, current_data: dict) -> None:
+        with open(self.filename, 'w') as f:
+            json.dump(current_data, f, indent=2)
 
 def main():
 
@@ -184,183 +205,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# # ambil input > save > display
-# dapt sudah user input
-# class Scheduler:
-#     def __init__(self):
-#         self.task_data = {}
-
-#     def start_script(self, task_backend):
-
-#         task_backend.create_json()
-
-
-#             user_input = input()
-
-#             # if user doesnt input anything
-#             if len(user_input) <= 0: 
-#                 print("You typed nothing. Please input a command")
-#                 break
-            
-
-    
-#             key, value = self._cleaned_user_input(user_input)
-
-#             # if user wants to quit the script
-#             if key == 'quit':
-#                 self.turn_off_script()
-
-#             # if user wants to add tasks
-#             if key == 'add':
-#                 if len(value) <= 0:
-#                     print("add should be paired with task. eg: add doing laundry")
-#                     return
-#                 else:
-#                     self.task_data.update({
-#                         'task': f'{value}',
-#                         'checked': False,
-#                     })
-
-#             task_backend.dict_to_json(self.task_data)
-
-#     # def main(self, user_cmd):
-
-#     #     if len(user_cmd) <= 0:
-#     #         return "Please input a command"
-        
-#     #     key, value = self._cleaned_user_input(user_cmd)
-
-#     #     if key == 'quit':
-#     #         return self.turn_off_script
-        
-#     #     if key == 'add':
-#     #         if len(value) <= 0:
-#     #             return "Specify the task that you want to add"
-#     #         else:
-#     #             self.task_data.update({
-#     #                 'task': 'value',
-#     #                 'checked': False
-#     #             })
-
-#     #     return
-
-#         # if key == "quit":
-#         #     return self.turn_off_script
-#         # elif key == "add":
-#         #     return self.add_task(key, value)
-
-#     # def user_input(self, inputted_cmd):
-#     #     input = {
-#     #         "quit": self.turn_off_script,
-#     #         "add": self.add_task(key, value),
-#     #         # "delete": "Remove something here",
-#     #         #"check": "Check something here",
-#     #         #"uncheck": "Uncheck something here",
-#     #     }
-
-#     #     key, value = self._cleaned_input(inputted_cmd)
-
-#     #     if len(value) < 1 and key == "quit":
-#     #         pass
-#     #     elif len(value) < 1:
-#     #         print(f"{key} what? Please specify the task!")
-#     #         return
-
-#     #     if key in input:
-#     #         if key is "add":
-#     #             return self.add_task(key, value)
-#     #     else:
-#     #         return "key not found. type help for more info"
-
-#     def turn_off_script(self):
-#         self.is_script_running = False
-#         print('exiting script...')
-        
-#     def add_task(self, key, value):
-#         self.task_data.update(key=f"{value}")
-
-#     def _cleaned_user_input(self, user_input):
-
-#         splitted_input = user_input.split(' ')
-#         key = self._cleaned_input_key(splitted_input[0])
-#         value = " ".join(splitted_input[1:])
-    
-#         return [key, value]
-    
-#     def _cleaned_input_key(self, key):
-#         return key.strip().lower()
-
-
-# class TaskBackend:
-#     def __init__(self):
-#         self.filename = "task.json"
-
-#     def create_json(self):
-#         try:
-#             with open(self.filename, 'x') as file:
-#                 pass
-#         except FileExistsError:
-#             return "File already exist"
-        
-#     # def dict_to_json(self, data):
-#     #     with open(self.filename, 'a') as f:
-#     #         .dumps(data)
-        
-
-# #taip add Cuci kain
-# #add_task() akan run
-# #dalam add_task() akan run backend iaitu append_task()
-# def intro_text():
-#     intro_text = """
-#     Available commands:
-#         add - adding new task
-#         delete - deleting task
-#         check - mark completed task
-#         uncheck - unmark checked task
-#         help - show this info
-    
-#     eg: task add medical checkup
-
-#     Insert your command\n\n""" 
-
-#     print(intro_text)
-    
-
-# def main():
-#     sh = Scheduler()
-#     tb = TaskBackend()
-
-#     toggle_script = True
-    
-#     while toggle_script:
-#         sh.start_script()
-
-#     # tb.create_json()
-#     # intro_text()
-
-#     # while sh.is_script_running:
-
-#     #     user_cmd = input()
-#     #     cmd = sh.main(user_cmd)
-
-#     #     if callable(cmd):
-#     #         cmd()
-#     #     else:
-#     #         print("Looks like none of the method called")
-    
-#     # tb.dict_to_json(sh.task_data)
-
-# main()
-
-
-
-# start script 
-#     start looping
-#         pilih command
-#             command called
-#                 if command quit
-#                     loop stopped
-#                 kalau tidak:
-#                     teruskan loop
