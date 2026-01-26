@@ -69,7 +69,7 @@ class DataHandler:
 
         return self.match_user_input(key, args)
 
-    def match_user_input(self, key: list, args: list):
+    def match_user_input(self, key: str, args: list):
 
         sanitized_key = key.strip().lower()
 
@@ -78,8 +78,14 @@ class DataHandler:
                 return sanitized_key
             
             case "add":
-                if len(args) <= 0:
-                    print("Please type a task")
+                if not len(args):
+                    print("No task inputted. Please describe a task. Example: add pickup child at daycare ")
+                    return
+                elif len(args[0]) < 5:
+                    print("Task length too short. Insert more than 5 letters")
+                    return
+                elif not args[0].isalpha():
+                    print("Invalid input. Please type letters only")
                     return
                 else:
                     self.add_task(args)
@@ -88,7 +94,12 @@ class DataHandler:
                 
             case "delete":
                 if not len(args):
-                    print("Please specify a task to delete")
+                    print("No task inputted. Please specify a task to delete")
+                    return
+                
+                if len(args[0]) < 5:
+                    print(f"Task doesn't exist. Please specify available task.")
+                    self.visualize_all_tasks()
                     return
                 
                 isTaskExist = self.check_task_existence(args)
@@ -98,15 +109,17 @@ class DataHandler:
                     self.visualize_all_tasks()
                     return
                 else:
-                    print(f"'{args[0]}' task doesnt exist")
+                    print(f"Task doesn't exist. Please specify available task.")
                     print()
                     self.visualize_all_tasks()
                     return
+                
             case "show":
                 self.visualize_all_tasks()
                 return
 
         print("Please enter available command...")
+        self.vi.display_info_text()
 
     def add_task(self, value: list[str]) -> None:
 
