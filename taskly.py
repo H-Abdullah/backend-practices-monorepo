@@ -17,7 +17,7 @@ class TaskVisualizer:
 
         print("\n") # For top space
 
-        headers = ["id", "description", "status", "createdAt", "updatedAt"]
+        headers = ["description", "status", "id", "createdAt", "updatedAt"]
 
         # Calculate column widths
         col_widths = {}
@@ -166,13 +166,14 @@ class DataController:
 
         if isTaskExist:
             print('Task already exist')
-            self.display_list()
+            current_data = self.td.load_all_data()
+            self.tv.visualize_task(current_data)
             return
         
         new_task = {
-                "id": self._get_task_id(),
                 "description": self.args.task,
                 "status": 'todo',
+                "id": self._get_task_id(),
                 "createdAt": self._get_current_datetime(),
                 "updatedAt": self._get_current_datetime(),
         }
