@@ -9,3 +9,6 @@ Get all of these projects by using this single command line
 ```shell
 git clone https://github.com/H-Abdullah/backend-practices-monorepo
 ```
+
+### Project URL
+https://github.com/H-Abdullah/backend-practices-monorepo
