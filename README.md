@@ -11,4 +11,6 @@ git clone https://github.com/H-Abdullah/backend-practices-monorepo
 ```
 
 ### Project URL
+```shell
 https://github.com/H-Abdullah/backend-practices-monorepo
+```
